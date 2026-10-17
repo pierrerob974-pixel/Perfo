@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <title>Perfo</title>
+  <meta name="description" content="Perfo — tes tâches en priorité 1, 2, 3.">
+  <meta name="theme-color" content="#071a45">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Perfo">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="bg" aria-hidden="true"></div>
+
+  <!-- ===== ACCUEIL ===== -->
+  <section id="view-home" class="view active" aria-label="Mes priorités">
+    <header class="topbar">
+      <div class="brand">
+        <img src="assets/logo.png" alt="" class="brand-logo">
+        <div>
+          <h1>Perfo</h1>
+          <p id="today-label" class="sub"></p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button id="btn-cal" class="cal-btn" aria-label="Ouvrir le calendrier">
+          <img src="assets/calendar.png" alt="">
+          <span id="cal-badge" class="cal-badge" hidden>0</span>
+        </button>
+        <button id="btn-menu" class="icon-btn" aria-label="Menu">
+          <svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main id="blocks" class="blocks"></main>
+
+    <div id="empty-home" class="empty" hidden>
+      <img src="assets/logo.png" alt="">
+      <h2>Rien en attente</h2>
+      <p>Ajoute une tâche avec le bouton +.</p>
+    </div>
+  </section>
+
+  <!-- ===== CALENDRIER ===== -->
+  <section id="view-cal" class="view" aria-label="Calendrier">
+    <header class="topbar">
+      <button id="btn-back" class="icon-btn" aria-label="Retour aux priorités">
+        <svg viewBox="0 0 24 24" width="24" height="24"><path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="month-nav">
+        <button id="m-prev" class="icon-btn" aria-label="Mois précédent">
+          <svg viewBox="0 0 24 24" width="20" height="20"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <h2 id="month-label"></h2>
+        <button id="m-next" class="icon-btn" aria-label="Mois suivant">
+          <svg viewBox="0 0 24 24" width="20" height="20"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <button id="btn-today" class="pill-btn">Auj.</button>
+    </header>
+
+    <div class="cal-card glass">
+      <div class="weekdays"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+      <div id="cal-grid" class="cal-grid"></div>
+    </div>
+
+    <div class="day-panel">
+      <h3 id="day-title"></h3>
+      <ul id="day-list" class="day-list"></ul>
+      <p id="day-empty" class="day-empty" hidden>Aucune tâche ce jour-là.</p>
+    </div>
+  </section>
+
+  <button id="fab" class="fab" aria-label="Ajouter une tâche">
+    <svg viewBox="0 0 24 24" width="28" height="28"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/></svg>
+  </button>
+
+  <!-- ===== FEUILLE : AJOUT / ÉDITION ===== -->
+  <div id="sheet-task" class="overlay" hidden>
+    <form id="task-form" class="sheet" autocomplete="off">
+      <div class="sheet-grip"></div>
+      <h2 id="task-form-title">Nouvelle tâche</h2>
+
+      <label class="field">
+        <span>Tâche</span>
+        <input id="f-title" type="text" maxlength="140" placeholder="Ex. : rappeler le parquet" required>
+      </label>
+
+      <div class="field">
+        <span>Priorité</span>
+        <div class="seg" id="f-prio" role="radiogroup">
+          <button type="button" data-p="0" class="seg-none">Aucune</button>
+          <button type="button" data-p="1" class="seg-1"><i></i>1</button>
+          <button type="button" data-p="2" class="seg-2"><i></i>2</button>
+          <button type="button" data-p="3" class="seg-3"><i></i>3</button>
+        </div>
+      </div>
+
+      <div class="row2">
+        <label class="field">
+          <span>Date</span>
+          <input id="f-date" type="date">
+        </label>
+        <label class="field">
+          <span>Heure</span>
+          <input id="f-time" type="time" disabled>
+        </label>
+      </div>
+      <button type="button" id="f-clear-date" class="link-btn" hidden>Retirer la date</button>
+
+      <p id="f-error" class="form-error" hidden></p>
+
+      <div class="sheet-actions">
+        <button type="button" id="f-delete" class="btn btn-danger" hidden>Supprimer</button>
+        <button type="button" id="f-cancel" class="btn btn-ghost">Annuler</button>
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ===== FEUILLE : REVUE DE FIN DE JOURNÉE ===== -->
+  <div id="sheet-review" class="overlay" hidden>
+    <div class="sheet">
+      <div class="sheet-grip"></div>
+      <p id="rv-count" class="rv-count"></p>
+      <h2>Toujours d'actualité ?</h2>
+      <div class="rv-task glass">
+        <strong id="rv-title"></strong>
+        <span id="rv-when"></span>
+      </div>
+
+      <div id="rv-main">
+        <p class="rv-label">Garder sans date, en priorité :</p>
+        <div class="rv-prios">
+          <button class="rv-p rv-p1" data-p="1"><img src="assets/p1.png" alt="">Priorité 1</button>
+          <button class="rv-p rv-p2" data-p="2"><img src="assets/p2.png" alt="">Priorité 2</button>
+          <button class="rv-p rv-p3" data-p="3"><img src="assets/p3.png" alt="">Priorité 3</button>
+        </div>
+        <div class="rv-row">
+          <button id="rv-redate" class="btn btn-ghost">Redater</button>
+          <button id="rv-delete" class="btn btn-danger">Supprimer</button>
+        </div>
+        <button id="rv-later" class="link-btn">Me redemander plus tard</button>
+      </div>
+
+      <div id="rv-redate-box" hidden>
+        <div class="row2">
+          <label class="field"><span>Nouvelle date</span><input id="rv-date" type="date"></label>
+          <label class="field"><span>Heure</span><input id="rv-time" type="time"></label>
+        </div>
+        <p id="rv-error" class="form-error" hidden></p>
+        <div class="rv-row">
+          <button id="rv-redate-cancel" class="btn btn-ghost">Retour</button>
+          <button id="rv-redate-ok" class="btn btn-primary">Valider</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MENU ===== -->
+  <div id="sheet-menu" class="overlay" hidden>
+    <div class="sheet">
+      <div class="sheet-grip"></div>
+      <h2>Sauvegarde</h2>
+      <p class="menu-note">Tes tâches sont stockées sur ce téléphone uniquement. Exporte régulièrement pour ne rien perdre.</p>
+      <button id="m-export" class="menu-item">
+        <svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 19h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Exporter une sauvegarde
+      </button>
+      <button id="m-import" class="menu-item">
+        <svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 15V3m0 0L7 8m5-5l5 5M4 19h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Importer une sauvegarde
+      </button>
+      <input id="import-file" type="file" accept="application/json,.json" hidden>
+      <p class="menu-version">Perfo · v1.0</p>
+      <button id="m-close" class="btn btn-ghost full">Fermer</button>
+    </div>
+  </div>
+
+  <!-- ===== TOAST ===== -->
+  <div id="toast" class="toast" hidden>
+    <span id="toast-msg"></span>
+    <button id="toast-undo">Annuler</button>
+    <i id="toast-bar"></i>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
